@@ -1,5 +1,6 @@
 #include <iostream>
 #include <queue>
+#include<stack>
 using namespace std;
  
 class BinaryTree {
@@ -38,6 +39,17 @@ class BinaryTree {
     };
     Node *root;
  
+    struct NodeRange {
+        Node* node;
+        int max;
+        int min;
+        NodeRange(Node* n, int max, int min) {
+            node = n;
+            this->max = max;
+            this->min = min;
+        }
+    };
+
     public:
     void insert(int data) {
         if (root == nullptr) {
@@ -49,6 +61,7 @@ class BinaryTree {
         if (root == nullptr) {
             return;
         }
+        cout << root;
         __printPreOrder(root->left);
         __printPreOrder(root->right);
     }
@@ -88,6 +101,55 @@ class BinaryTree {
                 return false;
             }
         }
+    }
+
+//with Recurrsion
+    bool __isBst(int max, int min, Node* r) {
+        if (r == nullptr) {
+            return true;
+        }
+        if (r->data>min && r->data<max) {
+           bool isLeftBST =  __isBst(r->data, min, r->left);
+           bool isRightBST = __isBst(r->data, max, r->right);
+           return isLeftBST && isRightBST;
+        }
+        return false;
+    }
+// Recurrsive approach
+    bool isBst() {
+        if (root == nullptr) {
+            return true;
+        }
+
+        __isBst(INT_MAX, INT_MIN, root);
+    }
+
+    //Iterative Sol
+    bool isBSTI() {
+        if(root == nullptr) {
+            return true;
+        }
+        stack<NodeRange> stack;
+        stack.push(NodeRange(root, INT_MAX, INT_MIN));
+        while(!stack.empty()) {
+            NodeRange current = stack.top();
+            stack.pop();
+
+            Node* n = current.node;
+            int max = current.max;
+            int min = current.min;
+
+            if(n->data > max || n->data < min) {
+                return false;
+            }
+            if(n->right != nullptr) {
+                stack.push(NodeRange(n->right, max, n->data));
+            }
+            if(n->left != nullptr) {
+                stack.push(NodeRange(n->left, n->data, min));
+            }
+        }
+        return true;
     }
 
     pair<int, bool> __isBalancedI(Node *r) {
